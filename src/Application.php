@@ -1,6 +1,6 @@
 <?php
 
-namespace NodePHP;
+namespace Node;
 
 class Application {
   protected $loop;

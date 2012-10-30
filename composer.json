@@ -1,0 +1,15 @@
+{
+  "name": "node",
+  "version": "0.0.1",
+
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/jankuca/node.php"
+    }
+  ],
+
+  "autoload": {
+    "psr-0": { "Node": "src/" },
+  }
+}
