@@ -13,16 +13,16 @@ final class Process {
   private $event_loop;
 
 
-  public function __construct() {
-    $this->event_loop = new EventLoop();
-  }
-
-
-  public function main($env) {
+  public function __construct($env) {
     $this->env = $env;
     $this->argv = $this->env['argv'];
     $this->argc = count($this->argv);
 
+    $this->event_loop = new EventLoop();
+  }
+
+
+  public function main() {
     // composer autoloader if available
     $file = $this->argv[0];
     if (strpos($file, 'vendor/') !== false) {
