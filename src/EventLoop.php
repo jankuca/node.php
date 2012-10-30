@@ -2,6 +2,8 @@
 
 namespace Node;
 
+require __DIR__ . '/Timer.php';
+
 class EventLoop {
   protected $events = array();
   protected $timers = array();
