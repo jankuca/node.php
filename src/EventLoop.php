@@ -29,8 +29,10 @@ class EventLoop {
   public function setTimeout($callback, $timeout) {
     $id = $this->timer_count++;
     $dispatch_at = microtime(true) + $timeout / 1000;
+    $args = array_slice(func_get_args(), 2);
 
     $timer = new Timer($id, $dispatch_at);
+    $timer->setArguments($args);
     $timer->setCallback($callback);
 
     $this->timers[] = $timer;
