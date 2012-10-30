@@ -22,6 +22,9 @@ class EventLoop {
       if ($event) {
         $event->dispatch();
       }
+
+      // do not halt the CPU
+      usleep(1000);
     }
   }
 
