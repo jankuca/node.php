@@ -4,7 +4,14 @@
 function setTimeout($callback, $timeout) {
   global $process;
 
-  $process->setTimeout($callback, $timeout);
+  return $process->setTimeout($callback, $timeout);
+}
+
+
+function clearTimeout($handle) {
+  global $process;
+
+  $process->clearTimeout($handle);
 }
 
 

@@ -38,7 +38,14 @@ class EventLoop {
     $timer->setArguments($args);
     $timer->setCallback($callback);
 
-    $this->timers[] = $timer;
+    $this->timers[$id] = $timer;
+    return $id;
+  }
+
+  public function clearTimeout($handle) {
+    if (isset($this->timers[$handle])) {
+      unset($this->timers[$handle]);
+    }
   }
 
 
@@ -61,8 +68,8 @@ class EventLoop {
     });
 
     $timer = $nonpositives[0];
-    $timer_index = array_search($timer, $this->timers);
-    array_splice($this->timers, $timer_index, 1);
+    unset($this->timers[$timer->id]);
+
     return $timer;
   }
 }

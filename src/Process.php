@@ -45,7 +45,12 @@ final class Process {
 
   public function setTimeout() {
     $args = func_get_args();
-    call_user_func_array(array($this->event_loop, 'setTimeout'), $args);
+    return call_user_func_array(array($this->event_loop, 'setTimeout'), $args);
+  }
+
+
+  public function clearTimeout($handle) {
+    $this->event_loop->clearTimeout($handle);
   }
 
 }
