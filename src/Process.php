@@ -2,7 +2,13 @@
 
 namespace Node;
 
-require __DIR__ . '/EventLoop.php';
+require_once __DIR__ . '/IStream.php';
+
+require_once __DIR__ . '/EventEmitter.php';
+require_once __DIR__ . '/EventLoop.php';
+require_once __DIR__ . '/HTTP.php';
+require_once __DIR__ . '/HTTPRequest.php';
+require_once __DIR__ . '/HTTPResponse.php';
 
 
 final class Process {
@@ -35,7 +41,7 @@ final class Process {
       throw new \Exception('No user script specified');
     }
 
-    $this->event_loop->setTimeout(function ($main_module_filename) {
+    $this->setTimeout(function ($main_module_filename) {
       require $main_module_filename;
     }, 0, $this->argv[1]);
 
@@ -48,9 +54,13 @@ final class Process {
     return call_user_func_array(array($this->event_loop, 'setTimeout'), $args);
   }
 
-
   public function clearTimeout($handle) {
     $this->event_loop->clearTimeout($handle);
+  }
+
+
+  public function addSocket(IStream $socket) {
+    $this->event_loop->addSocket($socket);
   }
 
 }
