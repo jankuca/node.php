@@ -35,8 +35,8 @@ class HTTPServer extends EventEmitter implements IStream {
     $start = microtime(true);
     $client_handle = stream_socket_accept($this->handle, 0);
     if ($client_handle !== false) {
-      $req = new HTTPRequest($client_handle, 'r');
-      $res = new HTTPResponse($client_handle, 'w');
+      $req = new HTTPRequest($client_handle);
+      $res = new HTTPResponse($client_handle);
 
       $process->addStream($req);
 

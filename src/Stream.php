@@ -9,7 +9,7 @@ abstract class Stream extends EventEmitter implements IStream {
   protected $handle;
 
 
-  public function __construct($handle, $mode) {
+  public function __construct($handle, $mode = 'r') {
     $this->handle = $handle;
     $this->mode = $mode;
 

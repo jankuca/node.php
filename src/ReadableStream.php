@@ -4,8 +4,13 @@ namespace Node;
 
 class ReadableStream extends Stream {
 
+  public function __construct($handle) {
+    parent::__construct($handle, 'r');
+  }
+
+
   public function read() {
-    $handle = $this->getHandle();
+    $handle = $this->handle;
 
     if (feof($handle)) {
       $this->close();
