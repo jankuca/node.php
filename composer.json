@@ -1,11 +1,25 @@
 {
-  "name": "node",
-  "version": "0.0.3",
+  "name": "iankuca/node",
+  "description": "An asynchronous PHP framework with and event loop (node.js-like)",
+  "keywords": [ "node", "async", "events", "asynchronous", "framework" ],
+  "homepage": "https://github.com/jankuca/node.php",
+  "license": "Do What The Fuck You Want To Public License",
 
-  "repositories": [
+  "authors": [
     {
-      "type": "vcs",
-      "url": "https://github.com/jankuca/node.php"
+      "name": "Ian Kuca",
+      "email": "jan@jankuca.com",
+      "homepage": "http://jankuca.com"
     }
-  ]
+  ],
+
+  "require": {
+    "php": ">=5.3.0"
+  },
+
+  "autoload": {
+    "psr-0": {
+      "Node": "src"
+    }
+  }
 }
