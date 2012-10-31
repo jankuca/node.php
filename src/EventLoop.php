@@ -69,13 +69,14 @@ class EventLoop {
 
 
   public function addStream($stream) {
+    $id = $stream->id;
     $mode = $stream->getMode();
 
-    $this->streams[$stream->id] = $stream;
+    $this->streams[$id] = $stream;
 
     $streams = &$this->streams;
-    $stream->once('close', function () use ($stream, &$streams) {
-      unset($streams[$stream->id]);
+    $stream->once('close', function () use ($id, &$streams) {
+      unset($streams[$id]);
     });
   }
 
