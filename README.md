@@ -61,3 +61,15 @@ This creates an HTTP server listening on the port 8080. It writes `Hello world!`
 ```
 
 Spawns a child `ls -a /tmp` process and asynchronously calls the provided callback function when done. Then it exits.
+
+## Logging
+
+Since the standard output of the process does not go to the browser, eventual exceptions and warnings are visible in the terminal window. The native exception stringifier is pretty horrible which is why *node.php* includes its own error formatter. Exceptions are now a lot nicer:
+
+![Exception Example](https://s3.amazonaws.com/files.droplr.com/files_production/acc_33314/ghLx?AWSAccessKeyId=AKIAJSVQN3Z4K7MT5U2A&Expires=1351717311&Signature=KxYEe7n8VUDhqa5y%2BOauAhEfb2M%3D&response-content-disposition=inline%3B%20filename%2A%3DUTF-8%27%27Screenshot%2B2012-10-31%2Bat%2B20.59.15.png)
+
+Another addition is the `console_log()` function which is basically `sprintf` that outputs to the standard output with an added end-of-line (`\n`) character.
+
+```php
+console_log('%d + %d = %s', 1, 2, 'awesome');
+// stdout: 1 + 2 = awesome
