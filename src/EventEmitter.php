@@ -35,7 +35,7 @@ class EventEmitter {
   public function once($type, $listener) {
     $self = $this;
 
-    $this->on($type, function () use ($listener, $self) {
+    $this->on($type, function () use ($type, $listener, $self) {
       $args = func_get_args();
       call_user_func_array($listener, $args);
       $self->removeListener($type, $listener);
