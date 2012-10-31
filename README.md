@@ -49,3 +49,15 @@ console_log('The HTTP server is listening on port %d.', $port);
 ```
 
 This creates an HTTP server listening on the port 8080. It writes `Hello world!` to each response. It does not exit by itself.
+
+### Directory Listing
+
+```php
+<?php
+\Node\FS::readdir('/tmp', function ($err, $files) {
+  if ($err) throw $err;
+  print_r($files);
+});
+```
+
+Spawns a child `ls -a /tmp` process and asynchronously calls the provided callback function when done. Then it exits.
