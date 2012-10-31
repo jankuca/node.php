@@ -2,6 +2,9 @@
 
 namespace Node;
 
+error_reporting(E_ACTUALLY_ALL);
+ini_set('display_errors', true);
+
 require_once __DIR__ . '/src/Process.php';
 require_once __DIR__ . '/functions.php';
 
