@@ -2,6 +2,16 @@
 
 An asynchronous PHP framework with an event loop (node.js-like)
 
+## Installation
+
+The preferred way is to use [**composer**](http://getcomposer.org).
+
+    {
+      "require": { "iankuca/node": "*" }
+    }
+
+Or just use this repository directly.
+
 ## Usage
 
     $ php -f main.php yourfile.php
