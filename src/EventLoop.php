@@ -20,12 +20,11 @@ class EventLoop {
         break;
       }
 
-      $now = microtime(true);
+      $now = microtime(true) * 1000;
 
       $timer = $this->getClosestTimer();
       if ($timer && $timer->dispatch_at <= $now) {
-        unset($this->timers[$timer->id]);
-        $timer->dispatch();
+        $this->dispatchNonpositiveTimers();
       }
 
       $event = array_shift($this->events);
@@ -51,7 +50,7 @@ class EventLoop {
 
   public function setTimeout($callback, $timeout) {
     $id = $this->timer_count++;
-    $dispatch_at = microtime(true) + $timeout / 1000;
+    $dispatch_at = microtime(true) * 1000 + $timeout;
     $args = array_slice(func_get_args(), 2);
 
     $timer = new Timer($id, $dispatch_at);
@@ -88,14 +87,31 @@ class EventLoop {
     }
 
     usort($timers, function ($a, $b) {
-      $diff = $a->dispatch_at - $b->dispatch_at;
+      $diff = $b->dispatch_at - $a->dispatch_at;
       if ($diff === 0) {
-        $diff = $a->id - $b->id;
+        $diff = $b->id - $a->id;
       }
       return $diff;
     });
 
     return $timers[0];
+  }
+
+
+  protected function dispatchNonpositiveTimers() {
+    $timers = $this->timers;
+    if (count($timers) !== 0) {
+      $now = microtime(true) * 1000;
+      $isNonpositive = function ($timer) use ($now) {
+        return ($timer->dispatch_at <= $now);
+      };
+
+      $nonpositive_timers = array_filter($timers, $isNonpositive);
+      foreach ($nonpositive_timers as $timer) {
+        unset($this->timers[$timer->id]);
+        $timer->dispatch();
+      }
+    }
   }
 
 
