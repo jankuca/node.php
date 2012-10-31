@@ -42,4 +42,16 @@ class EventEmitter {
     });
   }
 
+
+  public function removeListener($type, $listener) {
+    if (isset($this->__listeners__[$type])) {
+      $listeners = &$this->__listeners__[$type];
+      foreach ($listeners as $i => $fn) {
+        if ($fn === $listener) {
+          unset($listeners[$i]);
+        }
+      }
+    }
+  }
+
 }
