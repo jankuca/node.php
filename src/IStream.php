@@ -4,7 +4,7 @@ namespace Node;
 
 
 interface IStream {
-  public function getFD();
+  public function getHandle();
   public function getMode();
   public function close();
 }

@@ -6,20 +6,20 @@ abstract class Stream extends EventEmitter implements IStream {
   public $id;
 
   protected $mode = 0;
-  protected $fd;
+  protected $handle;
 
 
-  public function __construct($fd, $mode) {
-    $this->fd = $fd;
+  public function __construct($handle, $mode) {
+    $this->handle = $handle;
     $this->mode = $mode;
 
     $this->id = microtime(true) . '.' . rand(1000, 9999);
 
-    stream_set_blocking($fd, false);
+    stream_set_blocking($handle, false);
   }
 
-  public function getFD() {
-    return $this->fd;
+  public function getHandle() {
+    return $this->handle;
   }
 
   public function getMode() {
@@ -28,9 +28,10 @@ abstract class Stream extends EventEmitter implements IStream {
 
 
   public function close() {
-    if (get_resource_type($this->fd) === 'stream') {
-      fclose($this->fd);
+    if (is_resource($this->handle)) {
+      fclose($this->handle);
     }
+
     $this->emit('close');
   }
 }

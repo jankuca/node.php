@@ -4,24 +4,24 @@ namespace Node;
 
 
 class HTTPServer extends EventEmitter implements IStream {
-  protected $fd;
+  protected $handle;
 
 
   public function listen($port, $host = '0.0.0.0') {
     global $process;
 
     $addr = 'tcp://' . $host . ':' . $port;
-    $this->fd = stream_socket_server($addr, $errno, $errstr);
-    if ($this->fd === false) {
+    $this->handle = stream_socket_server($addr, $errno, $errstr);
+    if ($this->handle === false) {
       throw new \Exception('Failed to start the server');
     }
 
-    $process->addSocket($this);
+    $process->addStream($this);
   }
 
 
-  public function getFD() {
-    return $this->fd;
+  public function getHandle() {
+    return $this->handle;
   }
 
   public function getMode() {
@@ -33,26 +33,26 @@ class HTTPServer extends EventEmitter implements IStream {
     global $process;
 
     $start = microtime(true);
-    $fd = stream_socket_accept($this->fd, 0);
-    if ($fd !== false) {
-      $req = new HTTPRequest($fd, 'r');
-      $res = new HTTPResponse($fd, 'w');
+    $client_handle = stream_socket_accept($this->handle, 0);
+    if ($client_handle !== false) {
+      $req = new HTTPRequest($client_handle, 'r');
+      $res = new HTTPResponse($client_handle, 'w');
 
-      $process->addSocket($req);
+      $process->addStream($req);
 
       $self = $this;
-      $req->on('head', function () use ($self, $req, $res) {
+      $req->once('head', function () use ($self, $req, $res) {
         $self->emit('request', $req, $res);
       });
-      $res->on('end', function () use ($start) {
-        $now = microtime(true);
-        console_log('response end - request start = ' . ($now - $start) . ' ms');
-      });
+      //$res->once('close', function () use ($start) {
+      //  $now = microtime(true);
+      //  console_log('response end - request start = ' . ($now - $start) . ' ms');
+      //});
     }
   }
 
   public function close() {
-    fclose($this->fd);
+    fclose($this->handle);
     $this->emit('close');
   }
 }

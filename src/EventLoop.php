@@ -8,14 +8,14 @@ require_once __DIR__ . '/Timer.php';
 class EventLoop {
   protected $events = array();
   protected $timers = array();
-  protected $sockets = array();
+  protected $streams = array();
 
   private $timer_count = 0;
 
 
   public function run() {
     while (true) {
-      $has_work = count($this->events) + count($this->timers) + count($this->sockets);
+      $has_work = count($this->events) + count($this->timers) + count($this->streams);
       if (!$has_work) {
         break;
       }
@@ -69,14 +69,14 @@ class EventLoop {
   }
 
 
-  public function addSocket($socket) {
-    $mode = $socket->getMode();
+  public function addStream($stream) {
+    $mode = $stream->getMode();
 
-    $this->sockets[$socket->id] = $socket;
+    $this->streams[$stream->id] = $stream;
 
-    $sockets = &$this->sockets;
-    $socket->on('close', function () use ($socket, &$sockets) {
-      unset($sockets[$socket->id]);
+    $streams = &$this->streams;
+    $stream->once('close', function () use ($stream, &$streams) {
+      unset($streams[$stream->id]);
     });
   }
 
@@ -100,34 +100,34 @@ class EventLoop {
 
 
   protected function handleStreams($select_timeout) {
-    $fds = $this->getFDsByMode();
+    $handles = $this->getStreamHandlesByMode();
 
     //console_log('timeout: %d', $select_timeout);
-    $ready = $this->selectStream($fds, $select_timeout);
+    $ready = $this->selectStream($handles, $select_timeout);
     if ($ready) {
-      foreach ($fds['r'] as $fd) {
-        $socket_id = array_search($fd, $fds['all'], true);
-        $socket = $this->sockets[$socket_id];
-        //echo (string) $fd . " : " . get_class($socket) . "\n";
-        $socket->read();
+      foreach ($handles['r'] as $handle) {
+        $socket_id = array_search($handle, $handles['all'], true);
+        $stream = $this->streams[$socket_id];
+        //echo (string) $handle . " : " . get_class($stream) . "\n";
+        $stream->read();
       }
 
-      foreach ($fds['w'] as $fd) {
-        $socket_id = array_search($fd, $fds['all'], true);
-        $socket = $this->sockets[$socket_id];
-        $socket->resume();
+      foreach ($handles['w'] as $handle) {
+        $socket_id = array_search($handle, $handles['all'], true);
+        $stream = $this->streams[$socket_id];
+        $stream->resume();
       }
 
-      foreach ($fds['e'] as $fd) {
-        $socket_id = array_search($fd, $fds['all'], true);
-        $socket = $this->sockets[$socket_id];
-        $socket->except();
+      foreach ($handles['e'] as $handle) {
+        $socket_id = array_search($handle, $handles['all'], true);
+        $stream = $this->streams[$socket_id];
+        $stream->except();
       }
     }
   }
 
 
-  protected function getFDsByMode() {
+  protected function getStreamHandlesByMode() {
     $streams = array(
       'r' => array(),
       'w' => array(),
@@ -135,23 +135,23 @@ class EventLoop {
       'all' => array()
     );
 
-    foreach ($this->sockets as $i => $socket) {
-      if (get_resource_type($socket->getFD()) !== 'stream') {
-        $socket->close();
-        unset($this->sockets[$i]);
+    foreach ($this->streams as $i => $stream) {
+      if (get_resource_type($stream->getHandle()) !== 'stream') {
+        $stream->close();
+        unset($this->streams[$i]);
       } else {
-        $mode = $socket->getMode();
-        $streams[$mode][$socket->id] = $socket->getFD();
-        $streams['all'][$socket->id] = $socket->getFD();
+        $mode = $stream->getMode();
+        $streams[$mode][$stream->id] = $stream->getHandle();
+        $streams['all'][$stream->id] = $stream->getHandle();
       }
     }
 
     return $streams;
   }
 
-  protected function selectStream($fds, $timeout = 0) {
-    if (count($fds['r']) + count($fds['w']) + count($fds['e']) !== 0) {
-      return stream_select($fds['r'], $fds['w'], $fds['e'], 0, $timeout);
+  protected function selectStream($handles, $timeout = 0) {
+    if (count($handles['r']) + count($handles['w']) + count($handles['e']) !== 0) {
+      return stream_select($handles['r'], $handles['w'], $handles['e'], 0, $timeout);
     }
     return 0;
   }

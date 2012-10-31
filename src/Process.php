@@ -7,6 +7,9 @@ require_once __DIR__ . '/IStream.php';
 require_once __DIR__ . '/EventEmitter.php';
 require_once __DIR__ . '/EventLoop.php';
 require_once __DIR__ . '/HTTP.php';
+require_once __DIR__ . '/Stream.php';
+require_once __DIR__ . '/ReadableStream.php';
+require_once __DIR__ . '/WritableStream.php';
 require_once __DIR__ . '/HTTPRequest.php';
 require_once __DIR__ . '/HTTPResponse.php';
 
@@ -59,8 +62,8 @@ final class Process {
   }
 
 
-  public function addSocket(IStream $socket) {
-    $this->event_loop->addSocket($socket);
+  public function addStream(IStream $socket) {
+    $this->event_loop->addStream($socket);
   }
 
 }

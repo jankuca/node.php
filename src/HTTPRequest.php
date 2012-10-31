@@ -2,10 +2,7 @@
 
 namespace Node;
 
-require_once __DIR__ . '/Stream.php';
-
-
-class HTTPRequest extends Stream {
+class HTTPRequest extends ReadableStream {
   public $method;
   public $url;
   public $http_version;
@@ -17,17 +14,14 @@ class HTTPRequest extends Stream {
 
 
   public function read() {
-    $fd = $this->getFD();
-
-    if (feof($fd)) {
-      $this->close();
-    } else {
-      $data = fread($fd, 4096);
+    $data = parent::read();
+    if ($data !== null) {
       $this->parseChunk($data);
     }
+    return $data;
   }
 
-  public function parseChunk($data) {
+  protected function parseChunk($data) {
     if (!$this->head_parsed) {
       $parts = explode("\r\n\r\n", $data);
       $head = $this->buffer . $parts[0];
