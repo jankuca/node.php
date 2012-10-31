@@ -19,6 +19,8 @@ class EventEmitter {
         $args_single = array_merge(array($listener, 0), $args);
         call_user_func_array(array($process, 'setTimeout'), $args_single);
       }
+    } else if ($type === 'error') {
+      call_user_func_array(array($process, 'emit'), func_get_args());
     }
   }
 
