@@ -12,6 +12,7 @@ require_once __DIR__ . '/ReadableStream.php';
 require_once __DIR__ . '/WritableStream.php';
 require_once __DIR__ . '/HTTPRequest.php';
 require_once __DIR__ . '/HTTPResponse.php';
+require_once __DIR__ . '/ChildProcess.php';
 
 
 final class Process extends EventEmitter {
@@ -97,6 +98,10 @@ final class Process extends EventEmitter {
 
   public function addStream(IStream $socket) {
     $this->event_loop->addStream($socket);
+  }
+
+  public function addChildProcess(ChildProcess $child_process) {
+    $this->event_loop->addChildProcess($child_process);
   }
 
 

@@ -9,6 +9,7 @@ class EventLoop {
   protected $events = array();
   protected $timers = array();
   protected $streams = array();
+  protected $child_processes = array();
 
   private $timer_count = 0;
 
@@ -41,6 +42,8 @@ class EventLoop {
         }
       }
       $this->handleStreams($select_timeout);
+
+      $this->handleChildProcesses();
 
       // do not halt the CPU
       usleep(1000);
@@ -78,6 +81,12 @@ class EventLoop {
     $stream->once('close', function () use ($id, &$streams) {
       unset($streams[$id]);
     });
+  }
+
+
+  public function addChildProcess($child_process) {
+    $pid = $child_process->pid;
+    $this->child_processes[$pid] = $child_process;
   }
 
 
@@ -171,6 +180,17 @@ class EventLoop {
       return stream_select($handles['r'], $handles['w'], $handles['e'], 0, $timeout);
     }
     return 0;
+  }
+
+
+  protected function handleChildProcesses() {
+    foreach ($this->child_processes as $p) {
+      $status = proc_get_status($p->getHandle());
+      if (!$status['running']) {
+        unset($this->child_processes[$p->pid]);
+        $p->onexit($status['exitcode']);
+      }
+    }
   }
 
 }

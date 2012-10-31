@@ -18,7 +18,11 @@ class ReadableStream extends Stream {
     }
 
     $data = fread($handle, 4096);
-    return $data;
+    if (!empty($data)) {
+      $this->emit('data', $data);
+      return $data;
+    }
+    return null;
   }
 
 }

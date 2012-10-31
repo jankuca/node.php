@@ -9,6 +9,11 @@ class WritableStream extends Stream {
   }
 
 
+  public function resume() {
+    $this->emit('resume');
+  }
+
+
   public function write($data) {
     $handle = $this->handle();
     if (!is_resource($handle)) {
