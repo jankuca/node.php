@@ -2,7 +2,7 @@
 
 namespace Node;
 
-error_reporting(E_ACTUALLY_ALL);
+error_reporting(E_ALL | E_STRICT);
 ini_set('display_errors', true);
 
 require_once __DIR__ . '/src/Process.php';
