@@ -50,6 +50,35 @@ console_log('The HTTP server is listening on port %d.', $port);
 
 This creates an HTTP server listening on the port 8080. It writes `Hello world!` to each response. It does not exit by itself.
 
+### HTTP Request
+
+```php
+<?php
+$options = array(
+  'host' => 'ifconfig.me',
+  'path' => '/ip'
+);
+
+\Node\HTTP::request($options, function ($res) {
+  console_log('status: %d', $res->status);
+  print_r($res->headers);
+
+  $res->on('data', function ($chunk) {
+    echo $chunk;
+  });
+});
+```
+
+This makes an HTTP `GET` request to `http://ifoconfig.me/ip` and asynchronously calls the provided callback function when a response object is ready. If waits for response body. Then it exits.
+
+The standard output would be…
+
+    status: 200
+    Array
+    (...)
+    XX.XX.XX.XX
+
+
 ### Directory Listing
 
 ```php
