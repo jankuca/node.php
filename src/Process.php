@@ -3,6 +3,7 @@
 namespace Node;
 
 require_once __DIR__ . '/IStream.php';
+require_once __DIR__ . '/ICURLRequest.php';
 
 require_once __DIR__ . '/EventEmitter.php';
 require_once __DIR__ . '/EventLoop.php';
@@ -98,6 +99,12 @@ final class Process extends EventEmitter {
   public function addStream(IStream $socket) {
     $this->event_loop->addStream($socket);
   }
+
+
+  public function addCURLRequest($request) {
+    $this->event_loop->addCURLRequest($request);
+  }
+
 
   public function addChildProcess(ChildProcess $child_process) {
     $this->event_loop->addChildProcess($child_process);

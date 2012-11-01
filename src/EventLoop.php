@@ -6,17 +6,27 @@ require_once __DIR__ . '/Timer.php';
 
 
 class EventLoop {
-  protected $events = array();
   protected $timers = array();
   protected $streams = array();
+  protected $curl_requests = array();
+  protected $curl_request_handles = array();
   protected $child_processes = array();
 
+  private $curl_multi_handle = null;
+
+  private $curl_request_count = 0;
   private $timer_count = 0;
 
 
   public function run() {
     while (true) {
-      $has_work = count($this->events) + count($this->timers) + count($this->streams);
+      $has_work = !!(
+        count($this->timers) +
+        count($this->streams) +
+        count($this->curl_requests) +
+        count($this->child_processes)
+      );
+
       if (!$has_work) {
         break;
       }
@@ -28,20 +38,13 @@ class EventLoop {
         $this->dispatchNonpositiveTimers();
       }
 
-      $event = array_shift($this->events);
-      if ($event) {
-        $event->dispatch();
-      }
-
       $select_timeout = 10000000; // 10 seconds
       if ($timer) {
-        if ($timer->dispatch_at > $now) {
-          $select_timeout = 1000 * ($timer->dispatch_at - $now);
-        } else {
-          $select_timeout = 0;
-        }
+        $select_timeout = 10;
       }
       $this->handleStreams($select_timeout);
+
+      $this->handleCURLRequests();
 
       $this->handleChildProcesses();
 
@@ -81,6 +84,21 @@ class EventLoop {
     $stream->once('close', function () use ($id, &$streams) {
       unset($streams[$id]);
     });
+  }
+
+
+  public function addCURLRequest($request) {
+    if (!$this->curl_multi_handle) {
+      $this->curl_multi_handle = curl_multi_init();
+    }
+
+    $index = $this->curl_request_count++;
+    $handle = $request->getHandle();
+
+    $this->curl_requests[$index] = $request;
+    $this->curl_request_handles[$index] = $handle;
+
+    curl_multi_add_handle($this->curl_multi_handle, $handle);
   }
 
 
@@ -180,6 +198,33 @@ class EventLoop {
       return stream_select($handles['r'], $handles['w'], $handles['e'], 0, $timeout);
     }
     return 0;
+  }
+
+
+  protected function handleCURLRequests() {
+    if (count($this->curl_requests) !== 0) {
+      $multi_handle = $this->curl_multi_handle;
+      curl_multi_exec($multi_handle, $active);
+
+      while ($info = curl_multi_info_read($multi_handle)) {
+        $index = array_search($info['handle'], $this->curl_request_handles);
+        $request = $this->curl_requests[$index];
+
+        $status = curl_getinfo($info['handle'], CURLINFO_HTTP_CODE);
+        $request->status($status);
+
+        $chunk = curl_multi_getcontent($info['handle']);
+        if (!is_null($chunk)) {
+          $request->data($chunk);
+        }
+        $request->end();
+
+        curl_multi_remove_handle($multi_handle, $info['handle']);
+
+        unset($this->curl_requests[$index]);
+        unset($this->curl_request_handles[$index]);
+      }
+    }
   }
 
 
