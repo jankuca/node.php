@@ -81,6 +81,10 @@ final class Process extends EventEmitter {
     set_exception_handler(function ($err) use ($self) {
       $self->emit('error', $err);
     });
+    set_error_handler(function ($errno, $errstr, $errfile, $errline) use ($self) {
+      $err = new \ErrorException(trim($errstr), $errno, 0, $errfile, $errline);
+      $self->emit('error', $err);
+    });
 
     $this->event_loop->run();
   }
