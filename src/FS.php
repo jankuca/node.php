@@ -4,7 +4,7 @@ namespace Node;
 
 class FS {
 
-  static function readdir($path, $callback) {
+  static public function readdir($path, $callback) {
     $p = ChildProcess::spawn('ls', array('-a', $path));
 
     $files = array();
@@ -39,6 +39,31 @@ class FS {
       sort($files);
       $callback(null, $files);
     });
+  }
+
+
+  static public function readFile($path, $callback) {
+    $stream = self::createReadStream($path);
+
+    $data = '';
+    $stream->on('data', function ($chunk) use (&$data) {
+      $data .= $chunk;
+    });
+    $stream->on('end', function () use (&$data, $callback) {
+      $callback(null, $data);
+    });
+  }
+
+
+  static public function createReadStream($path) {
+    global $process;
+
+    $handle = fopen($path, 'r');
+    $stream = new ReadableStream($handle);
+
+    $process->addStream($stream);
+
+    return $stream;
   }
 
 }

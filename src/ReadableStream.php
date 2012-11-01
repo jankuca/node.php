@@ -13,6 +13,7 @@ class ReadableStream extends Stream {
     $handle = $this->handle;
 
     if (feof($handle)) {
+      $this->emit('end');
       $this->close();
       return null;
     }
