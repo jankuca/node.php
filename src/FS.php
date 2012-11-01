@@ -55,11 +55,31 @@ class FS {
   }
 
 
+  static public function writeFile($path, $data, $callback) {
+    $stream = self::createWriteStream($path);
+
+    $stream->write($data);
+    $stream->end();
+  }
+
+
   static public function createReadStream($path) {
     global $process;
 
     $handle = fopen($path, 'r');
     $stream = new ReadableStream($handle);
+
+    $process->addStream($stream);
+
+    return $stream;
+  }
+
+
+  static public function createWriteStream($path) {
+    global $process;
+
+    $handle = fopen($path, 'w');
+    $stream = new WritableStream($handle);
 
     $process->addStream($stream);
 
