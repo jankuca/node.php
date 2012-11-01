@@ -115,7 +115,7 @@ class EventLoop {
     }
 
     usort($timers, function ($a, $b) {
-      $diff = $b->dispatch_at - $a->dispatch_at;
+      $diff = $a->dispatch_at - $b->dispatch_at;
       if ($diff === 0) {
         $diff = $b->id - $a->id;
       }
